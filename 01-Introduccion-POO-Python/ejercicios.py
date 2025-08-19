@@ -6,6 +6,9 @@ Docente: Alejandro Salgar Marín
 ITM 2025-2
 """
 
+from xxlimited import Str
+
+
 print("EJERCICIOS PRÁCTICOS - MÓDULO 1: POO EN PYTHON")
 print("=" * 60)
 
@@ -16,24 +19,24 @@ print("\nEJERCICIO 1: CLASE ESTUDIANTE")
 print("-" * 40)
 
 class Estudiante:
-    def __init__(self, nombre, edad, carrera):
+    def __init__(self, nombre:Str, edad:int, carrera:Str):
         self.nombre = nombre
         self.edad = edad
         self.carrera = carrera
         self.promedio = 0.0
         self.materias_inscritas = []
     
-    def presentarse(self):
+    def presentarse(self) -> Str:
         return f"Hola, soy {self.nombre}, tengo {self.edad} años y estudio {self.carrera}."
     
-    def inscribir_materia(self, materia):
+    def inscribir_materia(self, materia:Str)->Str:
         if materia not in self.materias_inscritas:
             self.materias_inscritas.append(materia)
             return f"{self.nombre} se ha inscrito en {materia}"
         else:
             return f"{self.nombre} ya está inscrito en {materia}"
     
-    def agregar_nota(self, materia, nota):
+    def agregar_nota(self, materia:Str, nota:float)->Str:
         if materia in self.materias_inscritas and 0.0 <= nota <= 5.0:
             if self.promedio == 0.0:
                 self.promedio = nota
