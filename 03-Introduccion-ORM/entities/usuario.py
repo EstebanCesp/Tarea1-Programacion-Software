@@ -65,7 +65,7 @@ class UsuarioBase(BaseModel):
     telefono: Optional[str] = Field(None, max_length=20, description="Número de teléfono")
     activo: bool = Field(True, description="Estado del usuario")
     
-    @validator('nombre')
+    @validator('nombre')   
     def validar_nombre(cls, v):
         if not v.strip():
             raise ValueError('El nombre no puede estar vacío')
