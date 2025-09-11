@@ -1,158 +1,101 @@
 """
-Ejemplo Básico de ORM con SQLAlchemy
-=====================================
-
-Este ejemplo muestra los conceptos fundamentales de ORM:
-- Definición de modelos
-- Creación de tablas
-- Operaciones básicas de inserción y consulta
+Ejemplo básico de uso del ORM SQLAlchemy con SQL Server
 """
 
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from datetime import datetime
-import os
+from database.config import SessionLocal, create_tables
+from entities.categoria import Categoria
+from entities.producto import Producto
+from entities.usuario import Usuario
 
-# Crear la base de datos en memoria (SQLite)
-DATABASE_URL = "sqlite:///ejemplo_orm.db"
-engine = create_engine(DATABASE_URL, echo=True)
 
-# Crear la clase base para los modelos
-Base = declarative_base()
+def ejemplo_basico():
+    """Ejemplo básico de operaciones con SQLAlchemy"""
+    print("=== EJEMPLO BÁSICO ORM ===\n")
 
-class Usuario(Base):
-    """
-    Modelo de Usuario que representa la tabla 'usuarios'
-    
-    Atributos:
-        id: Identificador único del usuario
-        nombre: Nombre completo del usuario
-        email: Correo electrónico del usuario
-        fecha_registro: Fecha y hora de registro
-    """
-    
-    __tablename__ = 'usuarios'
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    nombre = Column(String(100), nullable=False)
-    email = Column(String(120), unique=True, nullable=False)
-    fecha_registro = Column(DateTime, default=datetime.now)
-    
-    def __repr__(self):
-        """Representación en string del objeto Usuario"""
-        return f"<Usuario(id={self.id}, nombre='{self.nombre}', email='{self.email}')>"
-    
-    def to_dict(self):
-        """Convierte el objeto a un diccionario"""
-        return {
-            'id': self.id,
-            'nombre': self.nombre,
-            'email': self.email,
-            'fecha_registro': self.fecha_registro.isoformat()
-        }
-
-def crear_tablas():
-    """Crea todas las tablas definidas en los modelos"""
-    print("Creando tablas...")
-    Base.metadata.create_all(engine)
-    print("Tablas creadas exitosamente")
-
-def crear_sesion():
-    """Crea y retorna una sesión de base de datos"""
-    Session = sessionmaker(bind=engine)
-    return Session()
-
-def ejemplo_crear_usuario():
-    """Ejemplo de creación de un usuario"""
-    print("\nCreando usuario...")
-    
-    session = crear_sesion()
-    
-    try:
-        # Crear un nuevo usuario
-        nuevo_usuario = Usuario(
-            nombre="Juan Pérez",
-            email="juan.perez@email.com"
-        )
-        
-        # Agregar a la sesión
-        session.add(nuevo_usuario)
-        
-        # Confirmar cambios
-        session.commit()
-        
-        print(f"Usuario creado: {nuevo_usuario}")
-        
-    except Exception as e:
-        print(f"Error al crear usuario: {e}")
-        session.rollback()
-    finally:
-        session.close()
-
-def ejemplo_consultar_usuarios():
-    """Ejemplo de consulta de usuarios"""
-    print("\nConsultando usuarios...")
-    
-    session = crear_sesion()
-    
-    try:
-        # Consultar todos los usuarios
-        usuarios = session.query(Usuario).all()
-        
-        if usuarios:
-            print(f"Se encontraron {len(usuarios)} usuarios:")
-            for usuario in usuarios:
-                print(f"   - {usuario}")
-        else:
-            print("No se encontraron usuarios")
-            
-    except Exception as e:
-        print(f"Error al consultar usuarios: {e}")
-    finally:
-        session.close()
-
-def ejemplo_buscar_por_email():
-    """Ejemplo de búsqueda específica"""
-    print("\nBuscando usuario por email...")
-    
-    session = crear_sesion()
-    
-    try:
-        # Buscar usuario por email
-        usuario = session.query(Usuario).filter_by(email="juan.perez@email.com").first()
-        
-        if usuario:
-            print(f"Usuario encontrado: {usuario}")
-        else:
-            print("Usuario no encontrado")
-            
-    except Exception as e:
-        print(f"Error en la búsqueda: {e}")
-    finally:
-        session.close()
-
-def main():
-    """Función principal que ejecuta todos los ejemplos"""
-    print("INICIANDO EJEMPLO BÁSICO DE ORM")
-    print("=" * 50)
-    
     # Crear tablas
-    crear_tablas()
-    
-    # Ejemplos de operaciones
-    ejemplo_crear_usuario()
-    ejemplo_consultar_usuarios()
-    ejemplo_buscar_por_email()
-    
-    print("\n" + "=" * 50)
-    print("EJEMPLO COMPLETADO")
-    print("\nConceptos aprendidos:")
-    print("   • Definición de modelos con SQLAlchemy")
-    print("   • Creación de tablas automática")
-    print("   • Operaciones CRUD básicas")
-    print("   • Manejo de sesiones")
-    print("   • Consultas simples")
+    create_tables()
+    print("✓ Tablas creadas")
+
+    # Crear sesión
+    db = SessionLocal()
+
+    try:
+        # 1. Crear un usuario
+        print("\n1. Creando usuario...")
+        usuario = Usuario(
+            nombre="Ana López", email="ana.lopez@email.com", telefono="3009876543"
+        )
+        db.add(usuario)
+        db.commit()
+        db.refresh(usuario)
+        print(f"✓ Usuario creado con ID: {usuario.id}")
+
+        # 2. Crear una categoría
+        print("\n2. Creando categoría...")
+        categoria = Categoria(
+            nombre="Libros", descripcion="Libros y material educativo"
+        )
+        db.add(categoria)
+        db.commit()
+        db.refresh(categoria)
+        print(f"✓ Categoría creada con ID: {categoria.id}")
+
+        # 3. Crear un producto
+        print("\n3. Creando producto...")
+        producto = Producto(
+            nombre="Python para Principiantes",
+            descripcion="Libro introductorio de Python",
+            precio=45.99,
+            stock=25,
+            categoria_id=categoria.id,
+            usuario_id=usuario.id,
+        )
+        db.add(producto)
+        db.commit()
+        db.refresh(producto)
+        print(f"✓ Producto creado con ID: {producto.id}")
+
+        # 4. Consultar datos
+        print("\n4. Consultando datos...")
+
+        # Obtener todos los usuarios
+        usuarios = db.query(Usuario).all()
+        print(f"Total usuarios: {len(usuarios)}")
+
+        # Obtener todos los productos
+        productos = db.query(Producto).all()
+        print(f"Total productos: {len(productos)}")
+
+        # 5. Consulta con filtro
+        print("\n5. Consulta con filtro...")
+        productos_caros = db.query(Producto).filter(Producto.precio > 40).all()
+        print(f"Productos con precio > $40: {len(productos_caros)}")
+
+        # 6. Actualizar datos
+        print("\n6. Actualizando datos...")
+        producto.precio = 39.99
+        db.commit()
+        print("✓ Precio actualizado")
+
+        # 7. Consulta con JOIN
+        print("\n7. Consulta con relaciones...")
+        producto_con_relaciones = (
+            db.query(Producto).filter(Producto.id == producto.id).first()
+        )
+
+        if producto_con_relaciones:
+            print(f"Producto: {producto_con_relaciones.nombre}")
+            print(f"Categoría: {producto_con_relaciones.categoria.nombre}")
+            print(f"Usuario: {producto_con_relaciones.usuario.nombre}")
+
+        print("\n=== EJEMPLO COMPLETADO ===")
+
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        db.rollback()
+    finally:
+        db.close()
+
 
 if __name__ == "__main__":
-    main()
+    ejemplo_basico()

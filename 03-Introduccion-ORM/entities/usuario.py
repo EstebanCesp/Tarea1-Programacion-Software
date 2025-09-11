@@ -1,46 +1,30 @@
 """
-Entidad Usuario
-===============
-
-Modelo de Usuario con SQLAlchemy y esquemas de validación con Pydantic.
+Modelo de Usuario
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from database.config import Base
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 from sqlalchemy.orm import relationship
-from pydantic import BaseModel, EmailStr, Field, validator
-from datetime import datetime
-from typing import Optional, List
+from sqlalchemy.sql import func
 
-from ..database.database import Base
 
 class Usuario(Base):
-    """
-    Modelo de Usuario que representa la tabla 'usuarios'
-    
-    Atributos:
-        id: Identificador único del usuario
-        nombre: Nombre completo del usuario
-        email: Correo electrónico del usuario (único)
-        telefono: Número de teléfono del usuario
-        activo: Estado del usuario (activo/inactivo)
-        fecha_registro: Fecha y hora de registro
-        fecha_actualizacion: Fecha y hora de última actualización
-    """
-    
-    __tablename__ = 'usuarios'
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    __tablename__ = "usuarios"
+
+    id_usuario = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
-    email = Column(String(120), unique=True, nullable=False, index=True)
+    email = Column(String(150), unique=True, index=True, nullable=False)
     telefono = Column(String(20), nullable=True)
-    activo = Column(Boolean, default=True, nullable=False)
-    fecha_registro = Column(DateTime, default=datetime.now, nullable=False)
-    fecha_actualizacion = Column(DateTime, default=datetime.now, onupdate=datetime.now)
-    
-    # Relaciones
-    productos = relationship("Producto", back_populates="usuario", cascade="all, delete-orphan")
-    
+    activo = Column(Boolean, default=True)
+    es_admin = Column(Boolean, default=False)
+    fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
+    fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # Relación con productos (un usuario puede tener muchos productos)
+    productos = relationship("Producto", back_populates="usuario")
+
     def __repr__(self):
+        return f"<Usuario(id_usuario={self.id_usuario}, nombre='{self.nombre}', email='{self.email}')>"
         """Representación en string del objeto Usuario"""
         return f"<Usuario(id={self.id}, nombre='{self.nombre}', email='{self.email}')>"
     
