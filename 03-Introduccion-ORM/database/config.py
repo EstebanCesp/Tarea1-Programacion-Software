@@ -16,29 +16,16 @@ load_dotenv()
 # Obtener la URL completa de conexión desde las variables de entorno
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Si no hay DATABASE_URL, construir desde variables individuales
 if not DATABASE_URL:
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-    DB_PORT = os.getenv("DB_PORT", "5432")
-    DB_NAME = os.getenv("DB_NAME", "neondb")
-    DB_USERNAME = os.getenv("DB_USERNAME", "")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-
-    if DB_USERNAME and DB_PASSWORD:
-        DATABASE_URL = (
-            f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-        )
-    else:
-        raise ValueError(
-            "Se requiere DATABASE_URL o las credenciales individuales de la base de datos"
-        )
+    raise ValueError("Se requiere DATABASE_URL en las variables de entorno")
 
 # Crear el motor de SQLAlchemy
 engine = create_engine(
     DATABASE_URL,
-    echo=True,  # Mostrar las consultas SQL en consola
+    echo=False,  # Cambiar a True para ver consultas SQL
     pool_pre_ping=True,  # Verificar conexión antes de usar
     pool_recycle=300,  # Reciclar conexiones cada 5 minutos
+    connect_args={"sslmode": "require"},  # Requerir SSL para Neon
 )
 
 # Crear la sesión
