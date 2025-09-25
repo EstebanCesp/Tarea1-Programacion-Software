@@ -15,6 +15,7 @@ class UsuarioCRUD:
     def __init__(self, db: Session):
         self.db = db
 
+    #
     def _validar_email(self, email: str) -> bool:
         """Validar formato de email"""
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"

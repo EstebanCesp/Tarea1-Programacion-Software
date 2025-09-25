@@ -1,18 +1,16 @@
-"""
-Modelo de Producto
-"""
-
 import uuid
-from typing import Any
 
-from database.config import Base
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from database.config import Base
+
 
 class Producto(Base):
+    """Modelo de Producto"""
+
     __tablename__ = "productos"
 
     id_producto = Column(
@@ -25,7 +23,6 @@ class Producto(Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Claves foráneas
     categoria_id = Column(
         UUID(as_uuid=True), ForeignKey("categorias.id_categoria"), nullable=False
     )
@@ -33,7 +30,6 @@ class Producto(Base):
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
 
-    # Campos de auditoría
     id_usuario_crea = Column(
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=False
     )
@@ -41,13 +37,11 @@ class Producto(Base):
         UUID(as_uuid=True), ForeignKey("usuarios.id_usuario"), nullable=True
     )
 
-    # Relaciones
     categoria = relationship("Categoria", back_populates="productos")
     usuario = relationship(
         "Usuario", back_populates="productos", foreign_keys=[usuario_id]
     )
 
-    # Relaciones de auditoría
     usuario_crea = relationship(
         "Usuario",
         foreign_keys=[id_usuario_crea],

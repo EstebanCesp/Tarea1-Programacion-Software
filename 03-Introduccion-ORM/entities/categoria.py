@@ -1,7 +1,3 @@
-"""
-Modelo de Categoría
-"""
-
 import uuid
 
 from database.config import Base

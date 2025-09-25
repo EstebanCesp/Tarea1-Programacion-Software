@@ -1,18 +1,15 @@
-"""
-Modelo de Usuario
-"""
-
 import uuid
 
-from database.config import Base
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from database.config import Base
+
 
 class Usuario(Base):
-    __tablename__ = "usuarios"
+    __tablename__ = "tbl_usuarios"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     nombre = Column(String(100), nullable=False)
@@ -25,7 +22,6 @@ class Usuario(Base):
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())
     fecha_edicion = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relación con productos (un usuario puede tener muchos productos)
     productos = relationship(
         "Producto", back_populates="usuario", foreign_keys="Producto.usuario_id"
     )
